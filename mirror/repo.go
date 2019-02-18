@@ -53,17 +53,22 @@ func (r Repos) OpenRepo(name, owner string) *git.Repository {
 	return repo
 }
 
-func (r Repos) AddRemote(repo *git.Repository, repoName string, service ServiceConfig, user RemoteUser) {
+func (r Repos) AddRemote(repo *git.Repository, repoName string, service ServiceConfig, user RemoteUser) string {
 	url := service.Url
 	url = fmt.Sprintf(url, user.Username, user.Token, user.Username+"/"+repoName)
+
+        remoteName := user.Service + "+" + user.Username
+
 	// first arg is output from git
 	_, err := repo.CreateRemote(&gitconfig.RemoteConfig{
-		Name: user.Service + "+" + user.Username,
+		Name: remoteName,
 		URLs: []string{url},
 	})
 	if err != nil && err != git.ErrRemoteExists {
 		panic(err.Error())
 	}
+
+	return remoteName
 }
 
 func (r Repos) PushRemote(repo *git.Repository, service ServiceConfig, user RemoteUser, remote, repoName, localUser string, retry bool) {
@@ -93,8 +98,8 @@ func (r Repos) Event(req GiteaEvent) {
 			// Look up each remote config in the remote user config
 			if remote, ok := r.repoConfig.RemoteUsers[remoteUser]; ok {
 				if service, ok := r.repoConfig.Services[remote.Service]; ok {
-					r.AddRemote(repo, req.Repository.Name, service, remote)
-					r.PushRemote(repo, service, remote, remoteUser, req.Repository.Name, owner, false)
+					gitRemote := r.AddRemote(repo, req.Repository.Name, service, remote)
+					r.PushRemote(repo, service, remote, gitRemote, req.Repository.Name, owner, false)
 				}
 			} else {
 				fmt.Printf("Could not find config for remote %s\n", remoteUser)
