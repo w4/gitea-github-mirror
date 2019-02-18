@@ -1,7 +1,21 @@
 {
-	"self": {
-		"username": "test",
-		"token": "asdf",
-		"ignores": ["repo"]
-	}
+    "Users": {
+        "MyGiteaUser": {
+           "ignores": [],
+           "remote_users": [
+               "MyGithubUser"
+           ]
+        }
+    },
+    "Services": {
+        "github": { "URL": "https://%s:%s@github.com/%s.git" }
+    },
+    "remote_users": {
+        "MyGithubUser": {
+            "username": "MyGithubUser",
+            "Service": "github",
+            "token": "GithubAccessToken",
+            "ignores": []
+        }
+    }
 }

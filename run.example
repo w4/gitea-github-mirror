@@ -2,7 +2,7 @@
 # default DB_USER is 'gitea'
 # default DB (database) is 'gitea'
 export DB_PASS=""
-export REPO_PATH="/example/repositories"
+export REPO_PATH="/path/to/repositories"
 export BASE_URL="https://git.example.com/"
 export IP="127.0.0.1" # empty string, bind-all
 # default db_url is mysql local socket
