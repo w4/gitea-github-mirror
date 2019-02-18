@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/jinzhu/gorm"
-	_ "github.com/jinzhu/gorm/dialects/mysql"
+	_ "github.com/jinzhu/gorm/dialects/postgres"
 )
 
 // Gitea SQLite types from DESCRIBE `table`
@@ -19,8 +19,8 @@ type Webhook struct {
 	ContentType  int64
 	Secret       string
 	Events       string
-	IsSsl        byte
-	IsActive     byte
+	IsSsl        bool
+	IsActive     bool
 	HookTaskType int
 	Meta         string
 	LastStatus   int
@@ -41,11 +41,11 @@ type User struct {
 	UpdatedUnix      int64
 	LastLoginUnix    int64
 	MaxRepoCreation  int
-	IsActive         byte
-	IsAdmin          byte
-	AllowGitHook     byte
-	AllowImportLocal byte
-	ProhibitLogin    byte
+	IsActive         bool
+	IsAdmin          bool
+	AllowGitHook     bool
+	AllowImportLocal bool
+	ProhibitLogin    bool
 	Avatar           string
 	AvatarEmail      string
 	NumFollowers     int
@@ -73,13 +73,13 @@ type Repository struct {
 	NumClosedIssues     int64
 	NumMilestones       int64
 	NumClosedMilestones int64
-	IsPrivate           byte
-	IsBare              byte
-	IsMirror            byte
-	IsFork              byte
+	IsPrivate           bool
+	IsBare              bool
+	IsMirror            bool
+	IsFork              bool
 	ForkId              int64
 	Size                int64
-	IsFsckEnabled       byte
+	IsFsckEnabled       bool
 	Topics              string
 	CreatedUnix         int64
 	UpdatedUnix         int64
@@ -93,8 +93,8 @@ func NewDatabase() Database {
 	db := Database{}
 	conf := GetConfig()
 	var err error
-	connectStr := fmt.Sprintf("%s:%s@%s/%s?charset=utf8&parseTime=True", conf.DbUser, conf.DbPass, conf.DbUrl, conf.DbName)
-	db.db, err = gorm.Open("mysql", connectStr)
+	connectStr := fmt.Sprintf("user=%s password=%s host=%s dbname=%s sslmode=disable", conf.DbUser, conf.DbPass, conf.DbUrl, conf.DbName)
+	db.db, err = gorm.Open("postgres", connectStr)
 	db.db.SingularTable(true)
 	if err != nil {
 		panic("Cannot open DB: " + err.Error())
@@ -117,11 +117,11 @@ func (db *Database) AddRepoHook(url string, secret string, pushOnly bool, ssl bo
 	}
 	hook.Events = event
 	if ssl {
-		hook.IsSsl = 1
+		hook.IsSsl = true
 	} else {
-		hook.IsSsl = 0
+		hook.IsSsl = false
 	}
-	hook.IsActive = 1
+	hook.IsActive = true
 	hook.HookTaskType = 3
 	hook.LastStatus = 0
 	hook.CreatedUnix = time.Now().Unix()
