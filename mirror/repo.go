@@ -72,7 +72,13 @@ func (r Repos) AddRemote(repo *git.Repository, repoName string, service ServiceC
 }
 
 func (r Repos) PushRemote(repo *git.Repository, service ServiceConfig, user RemoteUser, remote, repoName, localUser string, retry bool) {
-	err := repo.Push(&git.PushOptions{RemoteName: remote})
+	err := repo.Push(&git.PushOptions{
+		RemoteName: remote,
+		RefSpecs: []gitconfig.RefSpec {
+			"+refs/heads/*:refs/heads/*",
+			"+refs/tags/*:refs/tags/*",
+		},
+	})
 	if err == transport.ErrRepositoryNotFound && retry == false {
 		if create, ok := r.createHandlers[user.Service]; ok {
 			fmt.Println("Attempting to create repository")
